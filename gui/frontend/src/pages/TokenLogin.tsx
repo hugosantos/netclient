@@ -30,7 +30,7 @@ function TokenLogin() {
   const [enrollmentKey, setEnrollmentKey] = useState("");
   const [isConnecting, setIsConnecting] = useState(false);
   const [type, setType] = useState<"access-key" | "enrollment-key">(
-    "enrollment-key"
+    "access-key"
   );
   const navigate = useNavigate();
   const { networksDispatch } = useNetworksContext();
@@ -102,8 +102,13 @@ function TokenLogin() {
           <FormLabel>Token type</FormLabel>
           <RadioGroup
             onChange={(ev, type) => setType(type as any)}
-            defaultValue="enrollment-key"
+            defaultValue="access-key"
           >
+            <FormControlLabel
+              label="Access Key"
+              value="access-key"
+              control={<Radio />}
+            />
             <FormControlLabel
               value="enrollment-key"
               control={<Radio />}
@@ -113,6 +118,24 @@ function TokenLogin() {
         </FormControl>
       </Grid>
 
+      {type === "access-key" && (
+        <Grid item xs={12}>
+          <TextField
+            key="token-inp"
+            label="Token"
+            placeholder="Enter network token"
+            value={token}
+            onChange={(e) => setToken(e.target.value)}
+            error={!isFormValid}
+            helperText={isFormValid ? "" : "Token cannot be empty"}
+            inputProps={{ "data-testid": "token-inp" }}
+          />
+          <br />
+          <Typography variant="caption">
+            *Token can be acquired from Netmaker server
+          </Typography>
+        </Grid>
+      )}
       {type === "enrollment-key" && (
         <Grid item xs={12}>
           <TextField
