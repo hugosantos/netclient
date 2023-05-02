@@ -87,7 +87,8 @@ export default function UsernameLogin() {
       };
       networksDispatch(data);
 
-      navigate(getNetworkDetailsPageUrl(networkName));
+      // navigate(getNetworkDetailsPageUrl(networkName));
+      navigate(AppRoutes.NETWORKS_ROUTE);
     } catch (err) {
       await notifyUser("Failed to login to network\n" + err as string);
       console.error(err);
