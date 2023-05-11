@@ -2,6 +2,7 @@ package functions
 
 import (
 	"net"
+	"os"
 	"strings"
 
 	"github.com/gravitl/netclient/ncutils"
@@ -27,7 +28,23 @@ func GetLocalListenPort(ifacename string) (int, error) {
 	return device.ListenPort, nil
 }
 
+func userSpecifiedFilter() []string {
+	filter := os.Getenv("NETMAKER_INTFS")
+	if filter == "" {
+		return nil
+	}
+
+	names := strings.Split(filter, ",")
+	for k, name := range names {
+		names[k] = strings.TrimSpace(name)
+	}
+
+	return names
+}
+
 func getInterfaces() (*[]models.Iface, error) {
+	filter := userSpecifiedFilter()
+
 	ifaces, err := net.Interfaces()
 	if err != nil {
 		return nil, err
@@ -41,7 +58,8 @@ func getInterfaces() (*[]models.Iface, error) {
 			iface.Flags&net.FlagPointToPoint != 0 || // avoid direct connections
 			iface.Name == ncutils.GetInterfaceName() || // avoid netmaker
 			ncutils.IsBridgeNetwork(iface.Name) || // avoid bridges
-			strings.Contains(iface.Name, "docker") {
+			strings.Contains(iface.Name, "docker") ||
+			(len(filter) != 0 && sliceContains(filter, iface.Name)) {
 			continue
 		}
 		addrs, err := iface.Addrs()
